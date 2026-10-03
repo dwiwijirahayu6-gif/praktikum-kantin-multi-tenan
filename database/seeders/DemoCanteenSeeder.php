@@ -38,7 +38,7 @@ class DemoCanteenSeeder extends Seeder
             tap(DiningTable::firstOrNew(['canteen_id' => $canteen->id, 'code' => $code]))
                 ->forceFill(['label' => $label, 'zone' => $zone, 'status' => 'active'])->save();
         }
-            $this->call(DemoCanteenSeeder::class);
+        $this->call(DemoCanteenSeeder::class);
 
         $blueprint = [
             'AYAM' => [
