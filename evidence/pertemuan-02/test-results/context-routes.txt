@@ -1,0 +1,11 @@
+
+  GET|HEAD       / .................................................................................... 
+  GET|HEAD       admin/dashboard ................................ admin.dashboard › routes/admin.php:11
+  GET|HEAD       dashboard .................................................................. dashboard
+  GET|HEAD       kantin/{canteen} .............................. customer.home › routes/customer.php:11
+  GET|HEAD       profile ...................................................................... profile
+  GET|HEAD       tenant/{tenant}/dashboard .................... tenant.dashboard › routes/tenant.php:11
+  GET|HEAD       verify-email/{id}/{hash} ............ verification.verify › Auth\VerifyEmailController
+
+                                                                                     Showing [7] routes
+
