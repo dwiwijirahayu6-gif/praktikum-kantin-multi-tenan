@@ -2,35 +2,51 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
  * @property int $id
  * @property string $name
  * @property string $email
- * @property Carbon|null $email_verified_at
+ * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property string|null $role
+ * @property string $status
  */
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<UserFactory> */
+    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * Get the attributes that should be cast.
+     * Atribut yang boleh diisi secara mass assignment.
+     * `role` dan `status` sengaja TIDAK dimasukkan (diisi via forceFill).
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    /**
+     * Atribut yang disembunyikan saat serialisasi.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Konversi tipe atribut.
      *
      * @return array<string, string>
      */
@@ -52,5 +68,29 @@ class User extends Authenticatable
         return Str::length($initials) > 1
             ? Str::substr($initials, 0, 1).Str::substr($initials, -1)
             : $initials;
+    }
+
+    /**
+     * Apakah user memegang role tertentu. Kontrak role interim Modul 2
+     * (kolom `role`); diformalkan menjadi relasi pada Modul 4–5.
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role && $this->isActive();
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    public function isTenantOperator(): bool
+    {
+        return $this->hasRole('tenant');
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
     }
 }
