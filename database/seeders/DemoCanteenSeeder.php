@@ -38,7 +38,7 @@ class DemoCanteenSeeder extends Seeder
         foreach ([['M01', 'Meja 1', 'Indoor'], ['M02', 'Meja 2', 'Indoor'], ['M03', 'Meja 3', 'Outdoor']] as [$code, $label, $zone]) {
             tap(DiningTable::firstOrNew(['canteen_id' => $canteen->id, 'code' => $code]))
                 ->forceFill(['label' => $label, 'zone' => $zone, 'status' => 'active'])->save();
-        };
+        }
 
         $blueprint = [
             'AYAM' => [
@@ -106,7 +106,7 @@ class DemoCanteenSeeder extends Seeder
                 ['user_id' => $operator->id, 'tenant_id' => $tenants['AYAM']->id, 'role' => 'operator'],
             );
         }
-          // Admin demo -> pengelola (manager) Kantin Pusat.
+        // Admin demo -> pengelola (manager) Kantin Pusat.
         $admin = User::where('email', 'admin@kantin.test')->first();
         if ($admin !== null) {
             UserCanteenRole::firstOrCreate(

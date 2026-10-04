@@ -2,10 +2,11 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\User;
+use App\Support\Auth\LoginLockout;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
@@ -22,7 +23,8 @@ class LoginForm extends Form
     public bool $remember = false;
 
     /**
-     * Attempt to authenticate the request's credentials.
+     * UC-19: pesan kesalahan generik, akun nonaktif ditolak dengan pesan yang sama,
+     * dan penguncian akun (5x gagal/10 menit -> terkunci 15 menit).
      *
      * @throws ValidationException
      */
@@ -30,23 +32,35 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+        $lockout = app(LoginLockout::class);
+
+        if ($lockout->isLocked($this->email)) {
+            throw ValidationException::withMessages([
+                'form.email' => 'Akun terkunci sementara karena terlalu banyak percobaan gagal. Coba lagi dalam '.$lockout->minutesRemaining($this->email).' menit.',
+            ]);
+        }
+
+        $user = User::query()->where('email', $this->email)->first();
+
+        if ($user === null || ! $user->isActive() || ! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
             RateLimiter::hit($this->throttleKey());
+            $lockout->recordFailure($this->email);
 
             throw ValidationException::withMessages([
-                'form.email' => trans('auth.failed'),
+                'form.email' => 'Surel atau kata sandi tidak sesuai.',
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
+        $lockout->clear($this->email);
     }
 
     /**
-     * Ensure the authentication request is not rate limited.
+     * Lapis per-IP terhadap brute force massal (20/menit); penguncian per akun ditangani LoginLockout.
      */
     protected function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 20)) {
             return;
         }
 
@@ -62,11 +76,8 @@ class LoginForm extends Form
         ]);
     }
 
-    /**
-     * Get the authentication rate limiting throttle key.
-     */
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        return 'login-ip:'.(request()->ip() ?? 'unknown');
     }
 }

@@ -54,16 +54,16 @@ class ModuleConventionTest extends TestCase
         $hints = View::getFinder()->getHints();
 
         foreach (['Admin', 'Catalog', 'Ordering', 'Payments', 'Kitchen', 'Reporting'] as $module) {
-    $alias = strtolower($module);
-    $this->assertArrayHasKey($alias, $hints, "Namespace view '{$alias}::' tidak terdaftar");
+            $alias = strtolower($module);
+            $this->assertArrayHasKey($alias, $hints, "Namespace view '{$alias}::' tidak terdaftar");
 
-    $normalize = fn (string $path) => str_replace('\\', '/', rtrim($path, '\\/'));
+            $normalize = fn (string $path) => str_replace('\\', '/', rtrim($path, '\\/'));
 
-    $expected = $normalize(app_path("Modules/{$module}/resources/views"));
-    $actual   = array_map($normalize, $hints[$alias]);
+            $expected = $normalize(app_path("Modules/{$module}/resources/views"));
+            $actual = array_map($normalize, $hints[$alias]);
 
-    $this->assertContains($expected, $actual);
-}
+            $this->assertContains($expected, $actual);
+        }
     }
 
     public function test_module_route_file_is_loaded_inside_portal_group(): void
@@ -77,7 +77,7 @@ class ModuleConventionTest extends TestCase
         foreach (['web', 'auth', 'verified', 'tenant'] as $middleware) {
             $this->assertContains($middleware, $route->gatherMiddleware());
         }
-          $this->assertTrue($route->enforcesScopedBindings());
+        $this->assertTrue($route->enforcesScopedBindings());
     }
 
     public function test_module_route_is_guarded_like_core_portal_routes(): void

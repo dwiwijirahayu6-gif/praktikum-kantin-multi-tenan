@@ -26,7 +26,8 @@ class CommissionScheme extends Model
             'valid_to' => 'datetime',
         ];
     }
- /**
+
+    /**
      * Skema yang berlaku pada instan tertentu. Periode memakai interval setengah-terbuka
      * [valid_from, valid_to): valid_to adalah instan pertama skema TIDAK berlaku lagi, yakni
      * valid_from versi penggantinya. Tidak ada celah maupun tumpang tindih di batas pergantian,
