@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Database\Factories\ModifierOptionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,13 +11,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ModifierOption extends Model
 {
     /** @use HasFactory<ModifierOptionFactory> */
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
-    protected $fillable = ['name', 'price_delta', 'stock_qty', 'is_available'];
+    protected $fillable = ['group_id', 'name', 'price_delta', 'stock_qty', 'is_available'];
 
     protected function casts(): array
     {
-        return ['price_delta' => 'integer', 'stock_qty' => 'integer', 'is_available' => 'boolean'];
+        return [
+            'price_delta' => 'integer',
+            'stock_qty' => 'integer',
+            'is_available' => 'boolean',
+        ];
     }
 
     /** @return BelongsTo<Tenant, $this> */

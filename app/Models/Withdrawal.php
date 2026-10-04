@@ -2,16 +2,26 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Withdrawal extends Model
 {
-    protected $fillable = ['amount', 'status'];
+    use BelongsToTenant;
+
+    protected $fillable = [
+        'tenant_bank_account_id',
+        'amount',
+        'status',
+        'idempotency_key',
+    ];
 
     protected function casts(): array
     {
-        return ['amount' => 'integer', 'transfer_snapshot' => 'array'];
+        return [
+            'amount' => 'integer',
+        ];
     }
 
     /** @return BelongsTo<Tenant, $this> */

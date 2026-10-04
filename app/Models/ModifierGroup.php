@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Database\Factories\ModifierGroupFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,13 +12,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ModifierGroup extends Model
 {
     /** @use HasFactory<ModifierGroupFactory> */
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = ['name', 'min_select', 'max_select', 'is_active'];
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean', 'min_select' => 'integer', 'max_select' => 'integer'];
+        return [
+            'min_select' => 'integer',
+            'max_select' => 'integer',
+            'is_active' => 'boolean',
+        ];
     }
 
     /** @return BelongsTo<Tenant, $this> */

@@ -2,13 +2,27 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TenantOrder extends Model
 {
-    protected $fillable = ['status', 'scheduled_at'];
+    use BelongsToTenant;
+
+    protected $fillable = [
+        'order_id',
+        'commission_id',
+        'status',
+        'scheduled_at',
+        'commission_rate_snapshot',
+        'subtotal_amount',
+        'tax_amount',
+        'service_fee_amount',
+        'commission_amount',
+        'net_amount',
+    ];
 
     protected function casts(): array
     {
@@ -23,16 +37,16 @@ class TenantOrder extends Model
         ];
     }
 
-    /** @return BelongsTo<Order, $this> */
-    public function order(): BelongsTo
-    {
-        return $this->belongsTo(Order::class);
-    }
-
     /** @return BelongsTo<Tenant, $this> */
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    /** @return BelongsTo<Order, $this> */
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
     }
 
     /** @return HasMany<OrderItem, $this> */

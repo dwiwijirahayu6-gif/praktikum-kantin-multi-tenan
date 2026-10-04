@@ -2,12 +2,24 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderItem extends Model
 {
-    protected $fillable = ['name_snapshot', 'unit_price_snapshot', 'prep_minutes_snapshot', 'quantity', 'modifier_total', 'line_total'];
+    use BelongsToTenant;
+
+    protected $fillable = [
+        'tenant_order_id',
+        'menu_id',
+        'name_snapshot',
+        'unit_price_snapshot',
+        'prep_minutes_snapshot',
+        'quantity',
+        'modifier_total',
+        'line_total',
+    ];
 
     protected function casts(): array
     {
@@ -20,9 +32,21 @@ class OrderItem extends Model
         ];
     }
 
+    /** @return BelongsTo<Tenant, $this> */
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+
     /** @return BelongsTo<TenantOrder, $this> */
     public function tenantOrder(): BelongsTo
     {
         return $this->belongsTo(TenantOrder::class);
+    }
+
+    /** @return BelongsTo<Menu, $this> */
+    public function menu(): BelongsTo
+    {
+        return $this->belongsTo(Menu::class);
     }
 }
