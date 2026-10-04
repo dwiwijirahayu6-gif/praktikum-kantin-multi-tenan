@@ -12,6 +12,7 @@ use App\Models\ModifierOption;
 use App\Models\Tenant;
 use App\Models\TenantBalance;
 use App\Models\User;
+use App\Models\UserCanteenRole;
 use App\Models\UserTenantRole;
 use Illuminate\Database\Seeder;
 
@@ -37,8 +38,7 @@ class DemoCanteenSeeder extends Seeder
         foreach ([['M01', 'Meja 1', 'Indoor'], ['M02', 'Meja 2', 'Indoor'], ['M03', 'Meja 3', 'Outdoor']] as [$code, $label, $zone]) {
             tap(DiningTable::firstOrNew(['canteen_id' => $canteen->id, 'code' => $code]))
                 ->forceFill(['label' => $label, 'zone' => $zone, 'status' => 'active'])->save();
-        }
-        $this->call(DemoCanteenSeeder::class);
+        };
 
         $blueprint = [
             'AYAM' => [
@@ -104,6 +104,13 @@ class DemoCanteenSeeder extends Seeder
         if ($operator !== null) {
             UserTenantRole::firstOrCreate(
                 ['user_id' => $operator->id, 'tenant_id' => $tenants['AYAM']->id, 'role' => 'operator'],
+            );
+        }
+          // Admin demo -> pengelola (manager) Kantin Pusat.
+        $admin = User::where('email', 'admin@kantin.test')->first();
+        if ($admin !== null) {
+            UserCanteenRole::firstOrCreate(
+                ['user_id' => $admin->id, 'canteen_id' => $canteen->id, 'role' => 'manager'],
             );
         }
     }
